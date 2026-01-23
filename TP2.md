@@ -21,3 +21,7 @@ pour accede au info graphique il faut allez dans les paramètre wifi (comme sur 
 
 
 ![parametre wifi](https://github.com/Fireweather/linux/blob/main/image/parametreWifi.png)
+
+sur cette page il faut clique sur le logo paramètre sur la droite de votre reseau acutelle pour arrive sur cette page
+
+![detaille wifi](https://github.com/Fireweather/linux/blob/main/image/detailWifi.png)
