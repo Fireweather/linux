@@ -1,27 +1,74 @@
-inforamtion machine wifi (wlp1s0)
+# 🌐 Rapport de TP : Architecture et Protocoles Réseau
 
-ip : 10.33.66.195/20
+Ce dépôt documente les manipulations réseaux effectuées pour comprendre le fonctionnement de la pile TCP/IP, la gestion des adresses et les services essentiels (DHCP/DNS).
 
-ipV6 : fe80::28b8:8161:6f14:5e
+---
 
-mac : b0:60:88:ad:4c:ba
+## I. Exploration de la Configuration Locale
 
-broadcast: 10.33.79.255 
+L'étape initiale consiste à identifier comment la machine est vue par le réseau.
 
-réseau : 10.33.64.0
+### 1. Analyse des interfaces (WiFi & Ethernet)
+À l'aide des menus système et de la ligne de commande, nous avons extrait les identifiants uniques.
 
-l'ordinateur avec ubuntu n'a pas de carte reseau cette partie et donc impossible
+* **L'adresse MAC** : Identifiant physique de la carte.
+* **L'adresse IP** : Identifiant logique sur le réseau local.
 
-pour affichier la gateway la commande ```route -n```
+![Capture des paramètres WiFi](https://raw.githubusercontent.com/Fireweather/linux/main/image/parametreWifi.png)
+> *Ici, on accède à la liste des réseaux disponibles et aux propriétés de connexion pour isoler l'interface active.*
 
-le resultat```default via 10.33.79.254 dev wlp1s0 proto dhcp src 10.33.66.195 metric 600```
+![Détails techniques de la carte](https://raw.githubusercontent.com/Fireweather/linux/main/image/detailWifi.png)
+> *Cette vue détaillée montre le masque de sous-réseau (ex: 255.255.255.0) qui nous permet de calculer l'adresse de diffusion (broadcast) et l'adresse réseau.*
 
-#partie graphique
-pour accede au info graphique il faut allez dans les paramètre wifi (comme sur l'image)
+---
 
+## II. Gestion de l'Adressage et Sécurité
 
-![parametre wifi](https://github.com/Fireweather/linux/blob/main/image/parametreWifi.png)
+### A. Modification manuelle (Statique vs Dynamique)
+Pour comprendre l'importance du DHCP, nous avons configuré manuellement une adresse IP.
 
-sur cette page il faut clique sur le logo paramètre sur la droite de votre reseau acutelle pour arrive sur cette page
+![Configuration IP manuelle](https://raw.githubusercontent.com/Fireweather/linux/main/image/changementIpGraphique.png)
+> *Saisie manuelle des paramètres : IP, Masque et Passerelle (Gateway). Sans une Gateway correcte, la machine peut communiquer en local mais ne peut plus sortir sur Internet.*
 
-![detaille wifi](https://github.com/Fireweather/linux/blob/main/image/detailWifi.png)
+### B. Éviter les conflits avec Nmap
+Avant de choisir une IP statique, il est crucial de vérifier qu'elle n'est pas déjà utilisée par un autre hôte pour éviter un "conflit d'IP".
+
+![Scan Nmap pour IP libre](https://raw.githubusercontent.com/Fireweather/linux/main/image/ipNonOccuper.png)
+> *Utilisation de `nmap -sn` : La commande scanne la plage réseau. Si une adresse ne répond pas, elle est considérée comme libre pour notre configuration.*
+
+![Validation du changement](https://raw.githubusercontent.com/Fireweather/linux/main/image/ipChange.png)
+> *Vérification après modification : On constate que la nouvelle interface possède bien l'adresse IP choisie suite au scan.*
+
+---
+
+## III. Services Réseau : DHCP et DNS
+
+### 1. Le mécanisme DHCP
+Le serveur DHCP "loue" une adresse IP à l'ordinateur pour une durée déterminée.
+
+* **Le Bail (Lease) :** Les images ci-dessous montrent les détails du contrat entre le client et le serveur.
+
+![Serveur DHCP et Bail](https://raw.githubusercontent.com/Fireweather/linux/main/image/information%20complette%20serveur%20dhcp%20(bail).png)
+> *Sur cette capture, on voit précisément la date d'obtention de l'IP et sa date d'expiration. C'est le serveur DHCP d'Ingésup qui gère cette distribution.*
+
+![Renouvellement forcé](https://raw.githubusercontent.com/Fireweather/linux/main/image/chagement%20de%20bail%20(et%20possiblement%20d'ip).png)
+> *Action de libérer l'adresse (`release`) et de demander un nouveau bail (`renew`) via le terminal pour forcer une mise à jour de la configuration.*
+
+### 2. La Résolution DNS
+Le DNS traduit les noms (google.com) en adresses IP.
+
+![Interrogations DNS](https://raw.githubusercontent.com/Fireweather/linux/main/image/serveur%20dns.png)
+> *Utilisation de `nslookup` : On interroge le serveur DNS pour obtenir l'IP de domaines spécifiques. On voit ici la réponse "Non-authoritative answer" qui indique que l'info vient d'un cache.*
+
+![Tests DNS complémentaires](https://raw.githubusercontent.com/Fireweather/linux/main/image/nsclimp.png)
+> *Vérification de la connectivité du résolveur DNS local et tests de résolution inverses.*
+
+---
+
+## 🛠 Outils utilisés
+* **Analyse** : `ipconfig /all`
+* **Scan** : `nmap` (Network Mapper)
+* **DNS** : `nslookup`
+* **Flux** : `release / renew` pour le DHCP
+
+---
